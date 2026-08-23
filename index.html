@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fantasy Hockey Analyzer</title>
+<meta name="description" content="A companion app for Yahoo Fantasy Hockey leagues: true standings, weekly recaps, and free-agent analysis.">
+<style>
+  :root{
+    --bg:#151c33;
+    --bg-raised:#1c2542;
+    --bg-sunken:#111729;
+    --line:#2b3556;
+    --ink:#eef1f8;
+    --ink-dim:#a8b2cc;
+    --ink-faint:#7c88a8;
+    --accent:#8b6ce0;
+    --accent-soft:#6c3fc5;
+    --good:#4fd18b;
+    --warn:#f2a65a;
+    --radius:14px;
+    --maxw:940px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ---- hero ---- */
+  header{
+    padding:88px 0 64px;
+    background:
+      radial-gradient(900px 380px at 50% -120px, rgba(139,108,224,.28), transparent 70%),
+      var(--bg);
+    border-bottom:1px solid var(--line);
+    text-align:center;
+  }
+  .mark{
+    width:60px;height:60px;margin:0 auto 22px;
+    border-radius:16px;
+    background:linear-gradient(150deg,var(--accent),var(--accent-soft));
+    display:flex;align-items:center;justify-content:center;
+    font-size:29px;
+  }
+  h1{
+    margin:0 0 14px;
+    font-size:clamp(2.1rem,5.2vw,3.1rem);
+    line-height:1.1;
+    letter-spacing:-.022em;
+    font-weight:680;
+  }
+  .tagline{
+    margin:0 auto;max-width:620px;
+    font-size:clamp(1.02rem,2.1vw,1.18rem);
+    color:var(--ink-dim);
+  }
+  .badges{margin-top:30px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+  .badge{
+    font-size:.79rem;font-weight:560;letter-spacing:.025em;
+    padding:6px 13px;border-radius:999px;
+    background:var(--bg-raised);border:1px solid var(--line);color:var(--ink-dim);
+  }
+  .badge.live{color:var(--warn);border-color:rgba(242,166,90,.35)}
+
+  /* ---- sections ---- */
+  section{padding:64px 0;border-bottom:1px solid var(--line)}
+  h2{
+    margin:0 0 8px;font-size:1.42rem;letter-spacing:-.012em;font-weight:640;
+  }
+  .sub{margin:0 0 34px;color:var(--ink-faint);font-size:.95rem}
+
+  /* ---- features ---- */
+  .feature{
+    display:grid;grid-template-columns:1fr;gap:14px;
+    padding:26px;margin-bottom:18px;
+    background:var(--bg-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+  }
+  .feature:last-child{margin-bottom:0}
+  .feature h3{
+    margin:0;font-size:1.06rem;font-weight:620;
+    display:flex;align-items:center;gap:10px;
+  }
+  .feature h3 .n{
+    flex:none;width:25px;height:25px;border-radius:7px;
+    background:rgba(139,108,224,.17);color:var(--accent);
+    font-size:.76rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .feature p{margin:0;color:var(--ink-dim);font-size:.955rem}
+
+  /* ---- diagram ---- */
+  figure{margin:0;padding:22px;background:var(--bg-sunken);border:1px solid var(--line);border-radius:var(--radius)}
+  .scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  figure svg{display:block;width:100%;min-width:560px;height:auto}
+  figcaption{margin-top:14px;color:var(--ink-faint);font-size:.855rem;text-align:center}
+
+  /* ---- lists ---- */
+  .rows{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .row{
+    display:grid;grid-template-columns:170px 1fr;gap:18px;
+    padding:15px 20px;border-bottom:1px solid var(--line);
+    background:var(--bg-raised);font-size:.93rem;
+  }
+  .row:last-child{border-bottom:0}
+  .row dt{color:var(--ink-faint);font-weight:560}
+  .row dd{margin:0;color:var(--ink-dim)}
+  dl{margin:0}
+
+  ul.plain{margin:0;padding-left:20px;color:var(--ink-dim);font-size:.95rem}
+  ul.plain li{margin-bottom:9px}
+  ul.plain li:last-child{margin-bottom:0}
+
+  /* ---- footer ---- */
+  footer{padding:44px 0 58px;color:var(--ink-faint);font-size:.855rem;text-align:center}
+  .disclaimer{
+    max-width:660px;margin:0 auto 18px;
+    padding:15px 19px;border-radius:11px;
+    background:var(--bg-sunken);border:1px solid var(--line);
+    line-height:1.6;
+  }
+  @media (max-width:620px){
+    header{padding:64px 0 48px}
+    section{padding:48px 0}
+    .row{grid-template-columns:1fr;gap:5px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="mark">🏒</div>
+    <h1>Fantasy Hockey Analyzer</h1>
+    <p class="tagline">
+      A companion app for Yahoo Fantasy Hockey that brings over the weekly analysis
+      Yahoo already offers fantasy football managers — and adds a truer way to read the standings.
+    </p>
+    <div class="badges">
+      <span class="badge">iOS &amp; Android</span>
+      <span class="badge">Built with Flutter</span>
+      <span class="badge">Read-only</span>
+      <span class="badge live">In development</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>What it does</h2>
+    <p class="sub">Three features, built around a single head-to-head category league.</p>
+
+    <div class="feature">
+      <h3><span class="n">1</span> True standings</h3>
+      <p>
+        A head-to-head week only tells you how you did against one opponent. This scores every
+        team's week against <em>every other team</em> in the league, producing a full record and
+        rank for the week — so a strong week lost to the league's best team reads differently
+        than a weak week that happened to draw the worst. Records accumulate across the season
+        into standings that reflect performance rather than schedule luck.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3><span class="n">2</span> Weekly recap</h3>
+      <p>
+        A written summary of the league's week: matchup results and the category battles that
+        decided them, standout skaters and goaltenders, the week's luckiest and unluckiest teams
+        measured against the true standings, and any trades or waiver moves. The narrative text is
+        generated by a language model from the week's statistics.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3><span class="n">3</span> Free-agent analysis</h3>
+      <p>
+        Ranks available free agents against your league's own scoring categories rather than
+        generic value — weighting each player by how much they help in the categories where your
+        roster is actually behind your upcoming opponent.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>How true standings work</h2>
+    <p class="sub">The same week, read two ways.</p>
+    <figure>
+      <div class="scroller">
+      <svg viewBox="0 0 700 232" xmlns="http://www.w3.org/2000/svg" role="img"
+           aria-label="A team wins its scheduled matchup but ranks fourth when scored against every team in the league.">
+        <defs>
+          <style>
+            .lbl{fill:#7c88a8;font:500 12px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+            .nm{fill:#eef1f8;font:600 13px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+            .sm{fill:#a8b2cc;font:500 12px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+            .big{fill:#eef1f8;font:700 15px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+          </style>
+        </defs>
+
+        <!-- left: scheduled matchup -->
+        <text x="0" y="14" class="lbl">SCHEDULED MATCHUP</text>
+        <rect x="0" y="28" width="300" height="60" rx="10" fill="#1c2542" stroke="#2b3556"/>
+        <text x="18" y="52" class="nm">Your team</text>
+        <text x="18" y="72" class="sm">6 categories won</text>
+        <text x="282" y="63" class="big" text-anchor="end" fill="#4fd18b">WIN</text>
+
+        <rect x="0" y="96" width="300" height="60" rx="10" fill="#1c2542" stroke="#2b3556"/>
+        <text x="18" y="120" class="nm">Opponent</text>
+        <text x="18" y="140" class="sm">4 categories won</text>
+        <text x="282" y="131" class="big" text-anchor="end" fill="#7c88a8">LOSS</text>
+
+        <text x="0" y="186" class="sm">Result: 1–0 for the week.</text>
+        <text x="0" y="206" class="lbl">Tells you about one opponent.</text>
+
+        <!-- divider -->
+        <line x1="350" y1="20" x2="350" y2="212" stroke="#2b3556" stroke-dasharray="4 5"/>
+
+        <!-- right: vs whole league -->
+        <text x="400" y="14" class="lbl">SCORED AGAINST ALL 10 TEAMS</text>
+
+        <!-- bar chart of your rank among league -->
+        <g>
+          <rect x="400" y="30" width="270" height="22" rx="5" fill="#232d4f"/>
+          <rect x="400" y="30" width="243" height="22" rx="5" fill="#2b3556"/>
+          <text x="410" y="45" class="sm">1st</text>
+          <rect x="400" y="58" width="270" height="22" rx="5" fill="#232d4f"/>
+          <rect x="400" y="58" width="216" height="22" rx="5" fill="#2b3556"/>
+          <text x="410" y="73" class="sm">2nd</text>
+          <rect x="400" y="86" width="270" height="22" rx="5" fill="#232d4f"/>
+          <rect x="400" y="86" width="189" height="22" rx="5" fill="#2b3556"/>
+          <text x="410" y="101" class="sm">3rd</text>
+
+          <rect x="400" y="114" width="270" height="22" rx="5" fill="#232d4f"/>
+          <rect x="400" y="114" width="162" height="22" rx="5" fill="#8b6ce0"/>
+          <text x="410" y="129" style="fill:#fff;font:700 12px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">4th — your team</text>
+
+          <rect x="400" y="142" width="270" height="22" rx="5" fill="#232d4f"/>
+          <rect x="400" y="142" width="135" height="22" rx="5" fill="#2b3556"/>
+          <text x="410" y="157" class="sm">5th</text>
+        </g>
+
+        <text x="400" y="186" class="sm">True record: 6–3 against the field.</text>
+        <text x="400" y="206" class="lbl">Tells you where you actually stand.</text>
+      </svg>
+      </div>
+      <figcaption>Illustrative example. A win on the schedule can still be a middling week — and the reverse.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Data &amp; privacy</h2>
+    <p class="sub">What the app reads, and what leaves your device.</p>
+    <dl class="rows">
+      <div class="row">
+        <dt>Sign-in</dt>
+        <dd>You sign in with your own Yahoo account using OAuth 2.0. The app never sees or stores your Yahoo password.</dd>
+      </div>
+      <div class="row">
+        <dt>What it reads</dt>
+        <dd>Only leagues you already belong to — league settings, teams, weekly matchups and category stats, rosters, standings, and transactions.</dd>
+      </div>
+      <div class="row">
+        <dt>What it writes</dt>
+        <dd>Nothing. The app is read-only and cannot change your roster, lineup, or league.</dd>
+      </div>
+      <div class="row">
+        <dt>Third parties</dt>
+        <dd>Weekly recap text is generated by a language model. Team names, matchup results, player stat lines, and transactions are sent to that provider. No Yahoo account identifiers, manager names, or personal information are included.</dd>
+      </div>
+      <div class="row">
+        <dt>Storage</dt>
+        <dd>Access tokens are stored on your own device. There is no account system and no central server holding your league data.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Status</h2>
+    <p class="sub">Where the project is today.</p>
+    <ul class="plain">
+      <li>In active development, currently used by a single league of fewer than ten managers.</li>
+      <li>Built with Flutter, targeting iOS and Android, with a macOS build used for development.</li>
+      <li>Pending Yahoo Fantasy Sports API access approval.</li>
+      <li>Not yet published to the App Store or Google Play.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="disclaimer">
+      Fantasy Hockey Analyzer is an independent project and is <strong>not affiliated with,
+      endorsed by, or sponsored by</strong> Yahoo Inc. or the National Hockey League.
+      "Yahoo" and "Yahoo Fantasy" are trademarks of their respective owners. NHL team and player
+      names are the property of the NHL and its teams.
+    </p>
+    <p>Built by Dave Botham.</p>
+  </div>
+</footer>
+
+</body>
+</html>
